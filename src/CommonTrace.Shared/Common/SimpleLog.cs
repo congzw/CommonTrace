@@ -4,10 +4,9 @@ using System.IO;
 
 namespace CommonTrace.Common
 {
-    //类库内部使用的简单日志，默认日志输出文件不启用
+    //类库内部使用的简单日志
     public interface ISimpleLog
     {
-        bool LogFileEnabled { get; set; }
         void Log(object message);
         void LogEx(object ex);
     }
@@ -15,6 +14,8 @@ namespace CommonTrace.Common
     internal class SimpleLog : ISimpleLog
     {
         public string Category { get; set; }
+
+        public bool LogEnabled { get; set; }
 
         public bool LogFileEnabled { get; set; }
 
@@ -66,19 +67,23 @@ namespace CommonTrace.Common
             //async save file, ignore ex
             AsyncFile.Instance.AppendAllText(logFilePath, message, true);
         }
-
-        public static ISimpleLog Instance = new SimpleLog() { Category = "Default" };
     }
 
     public class SimpleLogFactory
     {
         public SimpleLogFactory()
         {
-            CreateLog = c => new SimpleLog() { Category = c };
+            LogEnabledFunc = category => true;
+            LogFileEnabledFunc = category => true;
+            CreateLog = c => new SimpleLog() { Category = c, LogEnabled = LogEnabledFunc(c), LogFileEnabled = LogFileEnabledFunc(c) };
         }
 
         public Func<string, ISimpleLog> CreateLog { get; set; }
 
+        public Func<string, bool> LogEnabledFunc { get; set; }
+
+        public Func<string, bool> LogFileEnabledFunc { get; set; }
+        
         public static SimpleLogFactory Instance = new SimpleLogFactory();
     }
 
@@ -98,7 +103,7 @@ namespace CommonTrace.Common
         {
             if (instance == null)
             {
-                return SimpleLog.Instance;
+                throw new ArgumentNullException(nameof(instance));
             }
             if (instance is Type type)
             {
