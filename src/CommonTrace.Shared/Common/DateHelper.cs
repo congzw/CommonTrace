@@ -10,6 +10,7 @@ namespace CommonTrace.Common
             return now.ToString(format);
         }
 
+        public Func<DateTime> GetDateDefault = () => new DateTime(2000, 1, 1);
         public Func<DateTime> GetDateNow = () => DateTime.Now;
         public static DateHelper Instance = new DateHelper();
     }
