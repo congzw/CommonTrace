@@ -3,9 +3,13 @@ using OpenTracing;
 
 namespace CommonTrace.OpenTraces
 {
-    public interface ITracerFactory
+    public interface ICachedTracer
     {
         IDictionary<string, ITracer> CachedTracers { get; }
+    }
+
+    public interface ITracerFactory : ICachedTracer
+    {
         ITracer CreateTracer(string tracerId);
     }
 
