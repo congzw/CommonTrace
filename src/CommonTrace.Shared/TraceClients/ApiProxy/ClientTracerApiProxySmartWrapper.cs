@@ -13,15 +13,17 @@ namespace CommonTrace.TraceClients.ApiProxy
         {
             Proxy = apiProxy;
             GetDateNow = DateHelper.Instance.GetDateNow;
+            //CheckInterval = TimeSpan.FromSeconds(3);
+
             //todo config
-            CheckInterval = TimeSpan.FromSeconds(3);
+            ExpiredIn = ExpiredIn.Create(TimeSpan.FromSeconds(3));
         }
 
         public IClientTracerApiProxy Proxy { get; set; }
 
         public bool ApiStatusOk { get; set; }
 
-        public TimeSpan CheckInterval { get; set; }
+        //public TimeSpan CheckInterval { get; set; }
 
         public Func<DateTime> GetDateNow { get; set; }
 
@@ -88,7 +90,8 @@ namespace CommonTrace.TraceClients.ApiProxy
             return Proxy.TryTestApiConnection();
         }
 
-        private DateTime? _lastCheckApiStatusDate = null;
+        public ExpiredIn ExpiredIn { get; set; }
+
         private bool CheckApiStatusOkSmart()
         {
             //check only necessary
@@ -96,19 +99,19 @@ namespace CommonTrace.TraceClients.ApiProxy
             {
                 return true;
             }
-            
+
             var now = GetDateNow();
-            if (_lastCheckApiStatusDate == null || now - _lastCheckApiStatusDate <= CheckInterval)
+            var shouldExpired = ExpiredIn.ShouldExpired(now);
+            if (!shouldExpired)
             {
                 return ApiStatusOk;
             }
-
+            
             ApiStatusOk = TryTestApiConnection().Result;
-            SetApiStatus(ApiStatusOk, now);
 
             return ApiStatusOk;
         }
-
+        
         private Task SafeInvokeTask(Task task)
         {
             var failTask = task.ContinueWith(HandleApiTaskEx, TaskContinuationOptions.OnlyOnFaulted);
@@ -117,7 +120,7 @@ namespace CommonTrace.TraceClients.ApiProxy
 
         private void HandleApiTaskEx(Task source)
         {
-            SetApiStatus(false, GetDateNow());
+            ApiStatusOk = false;
             source.Exception?.Handle(ex =>
             {
                 //todo log ex
@@ -126,10 +129,10 @@ namespace CommonTrace.TraceClients.ApiProxy
             });
         }
 
-        public void SetApiStatus(bool apiStatusOk, DateTime checkDate)
-        {
-            ApiStatusOk = apiStatusOk;
-            _lastCheckApiStatusDate = checkDate;
-        }
+        //public void SetApiStatus(bool apiStatusOk, DateTime checkDate)
+        //{
+        //    ApiStatusOk = apiStatusOk;
+        //    _lastCheckApiStatusDate = checkDate;
+        //}
     }
 }

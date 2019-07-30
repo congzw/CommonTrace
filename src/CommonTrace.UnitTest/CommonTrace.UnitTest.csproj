@@ -53,6 +53,7 @@
     <Reference Include="System.Runtime.Remoting" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\ExpiredInSpec.cs" />
     <Compile Include="TraceClients\ApiProxy\ApiProxyContextSpec.cs" />
     <Compile Include="OpenTraces\TracerContextSpec.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
