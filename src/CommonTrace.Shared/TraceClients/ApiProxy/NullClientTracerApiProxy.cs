@@ -31,7 +31,7 @@ namespace CommonTrace.TraceClients.ApiProxy
             return Task.FromResult(DateHelper.Instance.GetDateDefault());
         }
 
-        public Task<bool> TestApiConnection(string testApiUri, TimeSpan failExpired)
+        public Task<bool> TryTestApiConnection()
         {
             return Task.FromResult(false);
         }

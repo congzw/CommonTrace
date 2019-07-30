@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CommonTrace.TraceClients.ApiProxy
 {
@@ -17,6 +18,20 @@ namespace CommonTrace.TraceClients.ApiProxy
         private ApiProxyContext CreateApiProxyContext()
         {
             return ApiProxyContext.Resolve();
+        }
+
+        private async Task CreateSpan(IClientTracerApiProxy proxy, ClientSpan clientSpan, LogArgs args)
+        {
+            await proxy.StartSpan(clientSpan);
+
+            if (args != null)
+            {
+                args = args.With(clientSpan);
+                await proxy.Log(args);
+            }
+
+            var finishSpanArgs = new FinishSpanArgs().With(clientSpan);
+            await proxy.FinishSpan(finishSpanArgs);
         }
     }
 }

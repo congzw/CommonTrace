@@ -56,6 +56,7 @@
     <Compile Include="TraceClients\ApiProxy\ApiProxyContextSpec.cs" />
     <Compile Include="OpenTraces\TracerContextSpec.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TraceClients\ApiProxy\ClientTracerApiProxySmartWrapperSpec.cs" />
     <Compile Include="_Helpers\AssertHelper.cs" />
     <Compile Include="_Helpers\TestExtensions.cs" />
   </ItemGroup>
