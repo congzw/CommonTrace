@@ -9,63 +9,67 @@ namespace CommonTrace.TraceClients.ApiProxy
     public class ClientTracerApiProxySmartWrapperSpec
     {
         [TestMethod]
-        public async Task StartSpan_StatusOk_Should_InvokeRealProxy()
+        public async Task StartSpan_NotNeedCheck_Should_InvokeRealProxy()
         {
-            var apiProxy = Create();
-            apiProxy.ApiStatusOk = true;
+            var apiProxy = Create(false, true);
+            await apiProxy.StartSpan(null);
+            ((MockClientTracerApiProxy)apiProxy.Proxy).StartSpanInvoked.ShouldFalse();
+        }
+
+        [TestMethod]
+        public async Task StartSpan_NeedCheck_Should_InvokeRealProxy()
+        {
+            var apiProxy = Create(true, true);
             await apiProxy.StartSpan(null);
             ((MockClientTracerApiProxy)apiProxy.Proxy).StartSpanInvoked.ShouldTrue();
         }
 
         [TestMethod]
-        public async Task StartSpan_StatusNotOk_Should_NotInvokeRealProxy()
+        public async Task StartSpan_NeedCheck_Should_InvokeTryTestApiConnectionFail()
         {
-            var apiProxy = Create();
-            apiProxy.ApiStatusOk = false;
-            await apiProxy.StartSpan(null);
-            ((MockClientTracerApiProxy)apiProxy.Proxy).StartSpanInvoked.ShouldFalse();
-        }
-
-        [TestMethod]
-        public async Task StartSpan_StatusNotOk_IntervalNotExpired_Should_NotInvokeRealProxy()
-        {
-            var apiProxy = Create();
-            apiProxy.ApiStatusOk = false;
-            apiProxy.ExpiredIn.LastCheckAt = _mockNow.AddSeconds(-(checkIntervalSeconds -1));
-            await apiProxy.StartSpan(null);
-            ((MockClientTracerApiProxy)apiProxy.Proxy).StartSpanInvoked.ShouldFalse();
-        }
-
-        [TestMethod]
-        public async Task StartSpan_StatusNotOk_IntervalExpired_Should_InvokeTryTestApiConnectionFail()
-        {
-            var apiProxy = Create();
-            apiProxy.ExpiredIn.LastCheckAt = _mockNow.AddSeconds(-(checkIntervalSeconds + 1));
+            var apiProxy = Create(true, false);
             await apiProxy.StartSpan(null);
             ((MockClientTracerApiProxy)apiProxy.Proxy).TryTestApiConnectionInvoked.ShouldTrue();
             ((MockClientTracerApiProxy)apiProxy.Proxy).StartSpanInvoked.ShouldFalse();
         }
 
         [TestMethod]
-        public async Task StartSpan_StatusNotOk_IntervalExpired_Should_InvokeTryTestApiConnectionOk()
+        public async Task StartSpan_NeedCheck_Should_InvokeTryTestApiConnectionSuccess()
         {
-            var apiProxy = Create(true);
-            apiProxy.ExpiredIn.LastCheckAt = _mockNow.AddSeconds(-(checkIntervalSeconds + 1));
+            var apiProxy = Create(true, true);
             await apiProxy.StartSpan(null);
             ((MockClientTracerApiProxy)apiProxy.Proxy).TryTestApiConnectionInvoked.ShouldTrue();
             ((MockClientTracerApiProxy)apiProxy.Proxy).StartSpanInvoked.ShouldTrue();
         }
-
+        
         private readonly DateTime _mockNow = new DateTime(2019, 1, 1);
-        private readonly int checkIntervalSeconds = 3;
-        private ClientTracerApiProxySmartWrapper Create(bool statusOk = false)
+        private ClientTracerApiProxySmartWrapper Create(bool needCheck, bool apiTestOkResult)
         {
             var proxy = new MockClientTracerApiProxy();
-            proxy.MockStatusIsOk = statusOk;
+            proxy.MockApiTestOkResult = apiTestOkResult;
             var wrapper = new ClientTracerApiProxySmartWrapper(proxy);
-            wrapper.ExpiredIn = ExpiredIn.Create(TimeSpan.FromSeconds(checkIntervalSeconds));
             wrapper.GetDateNow = () => _mockNow;
+            wrapper.CheckSmart = new MockCheckSmart(needCheck);
             return wrapper;
+        }
+    }
+
+    public class MockCheckSmart : CheckIfNotOkAndExpired
+    {
+        private readonly bool _needCheck;
+
+        public MockCheckSmart(bool needCheck)
+        {
+            _needCheck = needCheck;
+        }
+        
+        public override bool CheckIfNecessary(DateTime now, Func<bool> checkStatusOkFunc)
+        {
+            if (_needCheck)
+            {
+                StatusOk = checkStatusOkFunc();
+            }
+            return StatusOk;
         }
     }
 
@@ -99,12 +103,12 @@ namespace CommonTrace.TraceClients.ApiProxy
             return Task.FromResult(DateHelper.Instance.GetDateDefault());
         }
 
-        public bool MockStatusIsOk { get; set; }
+        public bool MockApiTestOkResult { get; set; }
         public bool TryTestApiConnectionInvoked { get; set; }
         public Task<bool> TryTestApiConnection()
         {
             TryTestApiConnectionInvoked = true;
-            return Task.FromResult(MockStatusIsOk);
+            return Task.FromResult(MockApiTestOkResult);
         }
     }
 }
