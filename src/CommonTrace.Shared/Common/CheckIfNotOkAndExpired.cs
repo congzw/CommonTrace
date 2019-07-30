@@ -9,22 +9,25 @@ namespace CommonTrace.Common
             ExpiredIn.Create(TimeSpan.FromSeconds(3));
         }
 
-        public virtual bool CheckIfNecessary(DateTime now, Func<bool> checkStatusOkFunc)
+        public virtual bool NeedCheck(DateTime now)
         {
-            //check only necessary
             if (StatusOk)
             {
-                return true;
+                return false;
             }
+            return ExpiredIn.ShouldExpired(now);
+        }
 
-            var shouldExpired = ExpiredIn.ShouldExpired(now);
-            if (!shouldExpired)
+        public bool CheckIfNecessary(DateTime now, Func<bool> checkStatusOkFunc)
+        {
+            //check only necessary
+            var needCheck = NeedCheck(now);
+            if (!needCheck)
             {
                 return StatusOk;
             }
 
             StatusOk = checkStatusOkFunc();
-
             return StatusOk;
         }
 

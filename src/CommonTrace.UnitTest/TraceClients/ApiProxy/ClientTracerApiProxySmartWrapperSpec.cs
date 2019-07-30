@@ -45,8 +45,7 @@ namespace CommonTrace.TraceClients.ApiProxy
         private readonly DateTime _mockNow = new DateTime(2019, 1, 1);
         private ClientTracerApiProxySmartWrapper Create(bool needCheck, bool apiTestOkResult)
         {
-            var proxy = new MockClientTracerApiProxy();
-            proxy.MockApiTestOkResult = apiTestOkResult;
+            var proxy = new MockClientTracerApiProxy(){MockApiTestOkResult = apiTestOkResult };
             var wrapper = new ClientTracerApiProxySmartWrapper(proxy);
             wrapper.GetDateNow = () => _mockNow;
             wrapper.CheckSmart = new MockCheckSmart(needCheck);
@@ -62,14 +61,10 @@ namespace CommonTrace.TraceClients.ApiProxy
         {
             _needCheck = needCheck;
         }
-        
-        public override bool CheckIfNecessary(DateTime now, Func<bool> checkStatusOkFunc)
+
+        public override bool NeedCheck(DateTime now)
         {
-            if (_needCheck)
-            {
-                StatusOk = checkStatusOkFunc();
-            }
-            return StatusOk;
+            return _needCheck;
         }
     }
 
