@@ -82,16 +82,12 @@ namespace CommonTrace.TraceClients.ApiProxy
             return task;
         }
 
-        public Task<bool> TryTestApiConnection()
-        {
-            return Proxy.TryTestApiConnection();
-        }
         
         private bool CheckApiStatusOkSmart()
         {
             return CheckSmart.CheckIfNecessary(
                 GetDateNow(), 
-                () => TryTestApiConnection().Result);
+                TryTestApiConnection);
         }
         
         private Task SafeInvokeTask(Task task)
@@ -109,6 +105,16 @@ namespace CommonTrace.TraceClients.ApiProxy
                 Trace.WriteLine("ApiTaskEx: " + ex.Message);
                 return true;
             });
+        }
+
+        public Task<bool> TryTestApiConnectionAsync()
+        {
+            return Proxy.TryTestApiConnectionAsync();
+        }
+
+        public bool TryTestApiConnection()
+        {
+            return Proxy.TryTestApiConnection();
         }
     }
 }
