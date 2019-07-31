@@ -31,14 +31,9 @@ namespace CommonTrace.TraceClients.ApiProxy
             return Task.FromResult(DateHelper.Instance.GetDateDefault());
         }
 
-        public Task<bool> TryTestApiConnectionAsync()
+        public Task<bool> TryTestApiConnection()
         {
-            return Task.Run(() => TryTestApiConnection());
-        }
-
-        public bool TryTestApiConnection()
-        {
-            return false;
+            return Task.FromResult(false);
         }
     }
 }

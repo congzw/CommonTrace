@@ -100,14 +100,10 @@ namespace CommonTrace.TraceClients.ApiProxy
 
         public bool MockApiTestOkResult { get; set; }
         public bool TryTestApiConnectionInvoked { get; set; }
-        public Task<bool> TryTestApiConnectionAsync()
-        {
-            return Task.Run(() => TryTestApiConnection());
-        }
-        public bool TryTestApiConnection()
+        public Task<bool> TryTestApiConnection()
         {
             TryTestApiConnectionInvoked = true;
-            return MockApiTestOkResult;
+            return Task.FromResult(MockApiTestOkResult);
         }
     }
 }

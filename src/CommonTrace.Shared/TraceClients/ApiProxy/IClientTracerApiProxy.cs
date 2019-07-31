@@ -6,7 +6,6 @@ namespace CommonTrace.TraceClients.ApiProxy
 {
     public interface IClientTracerApiProxy : IClientTracerApi, ITestApi
     {
-        Task<bool> TryTestApiConnectionAsync();
-        bool TryTestApiConnection();
+        Task<bool> TryTestApiConnection();
     }
 }
