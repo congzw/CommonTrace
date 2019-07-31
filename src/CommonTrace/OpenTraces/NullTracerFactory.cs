@@ -11,8 +11,11 @@ namespace CommonTrace.OpenTraces
         public NullTracerFactory()
         {
             CachedTracers = new ConcurrentDictionary<string, ITracer>(StringComparer.OrdinalIgnoreCase);
+            Config = new TraceConfig();
         }
-        
+
+        public TraceConfig Config { get; set; }
+
         public ITracer CreateTracer(string tracerId)
         {
             return new MockTracer();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CommonTrace.Common;
 using OpenTracing;
 
 namespace CommonTrace.OpenTraces
@@ -10,20 +11,40 @@ namespace CommonTrace.OpenTraces
 
     public interface ITracerFactory : ICachedTracer
     {
+        TraceConfig Config { get; set; }
         ITracer CreateTracer(string tracerId);
+    }
+
+    public class TraceConfig : SimpleConfig
+    {
+        public TraceConfig()
+        {
+            DefaultTracerId = "Default-Tracer";
+        }
+
+        public string DefaultTracerId { get; set; }
     }
 
     public static class TracerFactoryExtensions
     {
-        private static string DefaultTracerId = "Default-Tracer";
         public static ITracer GetOrCreate(this ITracerFactory tracerFactory, string tracerId)
         {
-            var theTracerId = string.IsNullOrWhiteSpace(tracerId) ? DefaultTracerId : tracerId;
+            var defaultTracerId = TryFixTracerId(tracerFactory, tracerId);
+            var theTracerId = string.IsNullOrWhiteSpace(tracerId) ? defaultTracerId : tracerId;
             if (!tracerFactory.CachedTracers.ContainsKey(theTracerId))
             {
                 tracerFactory.CachedTracers[theTracerId] = tracerFactory.CreateTracer(theTracerId);
             }
             return tracerFactory.CachedTracers[theTracerId];
+        }
+
+        public static string TryFixTracerId(this ITracerFactory tracerFactory, string tracerId)
+        {
+            if (tracerFactory.Config != null && !string.IsNullOrWhiteSpace(tracerFactory.Config.DefaultTracerId))
+            {
+                return tracerFactory.Config.DefaultTracerId;
+            }
+            return "Default-Tracer";
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Threading.Tasks;
-using Demo.ConsoleApp.Demos;
+using CommonTrace.Common;
+using Demo.ConsoleApp.DemoTrace;
 
 namespace Demo.ConsoleApp
 {
@@ -8,16 +8,24 @@ namespace Demo.ConsoleApp
     {
         static void Main(string[] args)
         {
-            //DemoRunner.Instance.TaskExBad().Wait();
-            DemoRunner.Instance.TaskEx(true).Wait();
-            DemoRunner.Instance.TaskEx(false).Wait();
-            for (int i = 0; i < 10; i++)
-            {
-                Task.Delay(200).Wait();
-                Console.Write(".");
-            }
-            Console.WriteLine("main method complete.");
+            var simpleIoc = SimpleIoc.Instance;
+            SimpleIocInit.Init(simpleIoc);
+
+            var fooApi = simpleIoc.Resolve<FooApi>();
+            fooApi.GetUserInfo("admin");
+            Console.WriteLine("foo api demo complete.");
             Console.Read();
+
+            //DemoRunner.Instance.TaskExBad().Wait();
+            //DemoRunner.Instance.TaskEx(true).Wait();
+            //DemoRunner.Instance.TaskEx(false).Wait();
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    Task.Delay(200).Wait();
+            //    Console.Write(".");
+            //}
+            //Console.WriteLine("main method complete.");
+            //Console.Read();
         }
 
     }

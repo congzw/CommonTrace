@@ -33,8 +33,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTracing, Version=0.12.0.0, Culture=neutral, PublicKeyToken=61503406977abdaf, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTracing.0.12.0\lib\net45\OpenTracing.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,11 +51,30 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Demos\DemoRunner.cs" />
+    <Compile Include="DemoTrace\DemoIoc.cs" />
+    <Compile Include="DemoTrace\FooApi.cs" />
+    <Compile Include="DemoTrace\FooData.cs" />
+    <Compile Include="DemoTrace\FooService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommonTrace.Jaeger\CommonTrace.Jaeger.csproj">
+      <Project>{e329f9d3-7b74-4d93-af15-0e0854197ee0}</Project>
+      <Name>CommonTrace.Jaeger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CommonTrace.Shared\CommonTrace.Shared.csproj">
+      <Project>{4bbfe760-0247-4014-9719-e89509eea0b6}</Project>
+      <Name>CommonTrace.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CommonTrace\CommonTrace.csproj">
+      <Project>{d4c51ce5-0ddc-4080-b834-c7d3733759d4}</Project>
+      <Name>CommonTrace</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
