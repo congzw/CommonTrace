@@ -7,7 +7,7 @@ namespace CommonTrace.TraceClients.ApiProxy
 {
     public class ClientTracerApiProxySmartWrapper : IClientTracerApiProxy
     {
-        private readonly IClientTracerApiProxy _nullApiProxy = new NullClientTracerApiProxy();
+        private readonly IClientTracerApiProxy _nullApiProxy = NullClientTracerApiProxy.Instance;
 
         public ClientTracerApiProxySmartWrapper(IClientTracerApiProxy apiProxy)
         {
@@ -111,5 +111,15 @@ namespace CommonTrace.TraceClients.ApiProxy
         {
             return Proxy.TryTestApiConnection();
         }
+
+
+        #region for di extensions and simple use
+
+        private static readonly ClientTracerApiProxySmartWrapper Instance = new ClientTracerApiProxySmartWrapper(
+                SimpleIoc.Instance.Resolve<IClientTracerApiProxy>() ?? NullClientTracerApiProxy.Instance);
+
+        public static Func<IClientTracerApiProxy> Resolve { get; set; } = () => Instance;
+
+        #endregion
     }
 }

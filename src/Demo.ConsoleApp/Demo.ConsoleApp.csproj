@@ -51,7 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Demos\DemoRunner.cs" />
-    <Compile Include="DemoTrace\DemoIoc.cs" />
+    <Compile Include="DemoTraceClients\FooClient.cs" />
+    <Compile Include="DemoTraceClients\SimpleIocExtensions.cs" />
+    <Compile Include="DemoTrace\SimpleIocExtensions.cs" />
     <Compile Include="DemoTrace\FooApi.cs" />
     <Compile Include="DemoTrace\FooData.cs" />
     <Compile Include="DemoTrace\FooService.cs" />

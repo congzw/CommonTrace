@@ -1,11 +1,38 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CommonTrace.Common;
 
 namespace Demo.ConsoleApp.Demos
 {
     public class DemoRunner
     {
         public static DemoRunner Instance = new DemoRunner();
+
+        public void TestHttpClient()
+        {
+            try
+            {
+                var webApiHelper = (WebApiHelper)WebApiHelper.Resolve();
+                TestHttpClient(webApiHelper, "http://localhost:16685/api/test/GetDate", 50, 50);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+        
+        private void TestHttpClient(WebApiHelper webApiHelper, string testUri, int testCount, int failMs)
+        {
+            for (int i = 0; i < testCount; i++)
+            {
+                var i1 = i;
+                Task.Run(async () =>
+                {
+                    var isOk = await webApiHelper.CheckTargetStatus(testUri, failMs);
+                    Console.WriteLine("test " + i1 + " => " + (isOk ? "OK" : "!!!"));
+                });
+            }
+        }
 
         public Task TaskExBad()
         {

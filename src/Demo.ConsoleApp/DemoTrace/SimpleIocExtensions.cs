@@ -4,9 +4,9 @@ using CommonTrace.OpenTraces;
 
 namespace Demo.ConsoleApp.DemoTrace
 {
-    public class SimpleIocInit
+    public static class SimpleIocExtensions
     {
-        public static void Init(SimpleIoc simpleIoc)
+        public static void InitDemoTrace(this SimpleIoc simpleIoc)
         {
             simpleIoc.Register<FooData>(() => new FooData());
             simpleIoc.Register<FooService>(() => new FooService(simpleIoc.Resolve<FooData>()));

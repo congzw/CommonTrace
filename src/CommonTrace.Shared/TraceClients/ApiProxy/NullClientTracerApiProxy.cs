@@ -35,5 +35,7 @@ namespace CommonTrace.TraceClients.ApiProxy
         {
             return Task.FromResult(false);
         }
+
+        public static NullClientTracerApiProxy Instance = new NullClientTracerApiProxy();
     }
 }
