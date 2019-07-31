@@ -1,28 +1,35 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace CommonTrace.Common
 {
+    #region config
+
     public interface ISimpleConfig
     {
         void AddOrUpdate<T>(string key, T value);
         T TryGet<T>(string key, T defaultValue);
     }
 
-    public class SimpleConfig : ConcurrentDictionary<string, object>, ISimpleConfig
+    public class SimpleConfig : ISimpleConfig
     {
         private readonly object _lock = new object();
 
-        public SimpleConfig() : base(StringComparer.OrdinalIgnoreCase)
+        public SimpleConfig()
         {
+            Items = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         }
+
+        public IDictionary<string, object> Items { get; set; }
 
         public void AddOrUpdate<T>(string key, T value)
         {
             lock (_lock)
             {
-                this[key] = value;
+                Items[key] = value;
             }
         }
 
@@ -30,11 +37,11 @@ namespace CommonTrace.Common
         {
             lock (_lock)
             {
-                if (!this.ContainsKey(key))
+                if (!Items.ContainsKey(key))
                 {
                     return defaultValue;
                 }
-                return (T)this[key];
+                return (T)Items[key];
             }
         }
     }
@@ -52,10 +59,14 @@ namespace CommonTrace.Common
         }
     }
 
+    #endregion
+
+    #region config file
+
     public interface ISimpleConfigFile
     {
-        Task<ISimpleConfig> ReadFile(string filePath, ISimpleConfig defaultValue);
-        Task SaveFile(string filePath, ISimpleConfig config);
+        Task<T> ReadFile<T>(string filePath, T defaultValue) where T : ISimpleConfig;
+        Task SaveFile<T>(string filePath, T config) where T : ISimpleConfig;
     }
 
     public class SimpleConfigFile : ISimpleConfigFile
@@ -67,16 +78,39 @@ namespace CommonTrace.Common
             _simpleJsonFile = simpleJsonFile;
         }
 
-        public Task<ISimpleConfig> ReadFile(string filePath, ISimpleConfig defaultValue)
+        public Task<T> ReadFile<T>(string filePath, T defaultValue) where T : ISimpleConfig
         {
-            return _simpleJsonFile.ReadFileAsSingle<ISimpleConfig>(filePath);
+            return _simpleJsonFile.ReadFileAsSingle<T>(filePath);
         }
 
-        public Task SaveFile(string filePath, ISimpleConfig config)
+        public Task SaveFile<T>(string filePath, T config) where T : ISimpleConfig
         {
             return _simpleJsonFile.SaveFileAsSingle(filePath, config, true);
         }
     }
+    
+    public static class SimpleConfigFileExtensions
+    {
+        public static string GetDefaultConfigFilePath<T>(this ISimpleConfigFile simpleConfigFile)
+        {
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, typeof(T).Name + ".json");
+            return filePath;
+        }
+
+        public static Task<T> ReadFile<T>(this ISimpleConfigFile simpleConfigFile, T defaultValue) where T : ISimpleConfig
+        {
+            var filePath = GetDefaultConfigFilePath<T>(simpleConfigFile);
+            return simpleConfigFile.ReadFile(filePath, defaultValue);
+        }
+
+        public static Task SaveFile<T>(this ISimpleConfigFile simpleConfigFile, T value) where T : ISimpleConfig
+        {
+            var filePath = GetDefaultConfigFilePath<T>(simpleConfigFile);
+            return simpleConfigFile.SaveFile(filePath, value);
+        }
+    }
+    
+    #endregion
 
     public class SimpleConfigFactory
     {

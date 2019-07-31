@@ -30,6 +30,16 @@ namespace CommonTrace.Common
             config.TryGet("key3", new DateTime(1999, 1, 1)).ShouldEqual(new DateTime(2000, 1,1));
         }
 
+        [TestMethod]
+        public void GetDefaultConfigFilePath_DiffModel_Should_Diff()
+        {
+            var simpleConfigFile = CreateSimpleConfigFile();
+            var defaultConfigFilePath = simpleConfigFile.GetDefaultConfigFilePath<SimpleConfig>();
+            var defaultConfigFilePath2 = simpleConfigFile.GetDefaultConfigFilePath<MockConfig>();
+            defaultConfigFilePath.ShouldNotEqual(defaultConfigFilePath2);
+        }
+
+
         private ISimpleConfigFile CreateSimpleConfigFile()
         {
             var mockJsonFile = new MockJsonFile();
@@ -50,13 +60,13 @@ namespace CommonTrace.Common
         
         public Task<IList<T>> ReadFile<T>(string filePath)
         {
-            IList<ISimpleConfig> defaultResult = new List<ISimpleConfig>();
+            IList<T> defaultResult = new List<T>();
             if (filePath != MockConfigFilePath)
             {
                 return Task.FromResult((IList<T>)defaultResult);
             }
 
-            defaultResult.Add(MockConfig);
+            defaultResult.Add((T)MockConfig);
             return Task.FromResult((IList<T>)defaultResult);
         }
 
