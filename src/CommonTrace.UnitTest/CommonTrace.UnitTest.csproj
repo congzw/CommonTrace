@@ -55,6 +55,10 @@
   <ItemGroup>
     <Compile Include="Common\CheckIfNotOkAndExpiredSpec.cs" />
     <Compile Include="Common\ExpiredInSpec.cs" />
+    <Compile Include="Common\SimpleConfigExtensionSpec.cs" />
+    <Compile Include="Common\SimpleConfigFileSpec.cs" />
+    <Compile Include="Common\SimpleConfigSpec.cs" />
+    <Compile Include="Common\_Foo.cs" />
     <Compile Include="TraceClients\ApiProxy\ApiProxyContextSpec.cs" />
     <Compile Include="OpenTraces\TracerContextSpec.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
