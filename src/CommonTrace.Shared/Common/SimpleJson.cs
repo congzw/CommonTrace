@@ -77,9 +77,9 @@ namespace CommonTrace.Common
 
         #region for di extensions
 
-        private static readonly SimpleJson Instance = new SimpleJson();
-        public static Func<ISimpleJson> Resolve { get; set; } = () => Instance;
-        public static Func<ISimpleJsonFile> ResolveSimpleJsonFile { get; set; } = () => Instance;
+        private static readonly Lazy<SimpleJson> Instance = new Lazy<SimpleJson>(() => new SimpleJson());
+        public static Func<ISimpleJson> Resolve { get; set; } = () => Instance.Value;
+        public static Func<ISimpleJsonFile> ResolveSimpleJsonFile { get; set; } = () => Instance.Value;
 
         #endregion
     }

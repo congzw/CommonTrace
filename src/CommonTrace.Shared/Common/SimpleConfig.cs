@@ -116,10 +116,10 @@ namespace CommonTrace.Common
     {
         #region for di extensions
 
-        private static readonly ISimpleConfig Instance = new SimpleConfig();
-        private static readonly ISimpleConfigFile InstanceFile = new SimpleConfigFile(SimpleJson.ResolveSimpleJsonFile());
-        public static Func<ISimpleConfig> Resolve { get; set; } = () => Instance;
-        public static Func<ISimpleConfigFile> ResolveFile { get; set; } = () => InstanceFile;
+        private static readonly Lazy<ISimpleConfig> LazyInstance = new Lazy<ISimpleConfig>(() => new SimpleConfig());
+        private static readonly Lazy<ISimpleConfigFile> LazyInstanceFile = new Lazy<ISimpleConfigFile>(() => new SimpleConfigFile(SimpleJson.ResolveSimpleJsonFile()));
+        public static Func<ISimpleConfig> Resolve { get; set; } = () => LazyInstance.Value;
+        public static Func<ISimpleConfigFile> ResolveFile { get; set; } = () => LazyInstanceFile.Value;
 
         #endregion
     }

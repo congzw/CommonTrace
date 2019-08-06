@@ -151,8 +151,8 @@ namespace CommonTrace.Common
 
         #region for di extensions
 
-        private static readonly IWebApiHelper Instance = new WebApiHelper(SimpleLogFactory.Instance);
-        public static Func<IWebApiHelper> Resolve { get; set; } = () => Instance;
+        private static readonly Lazy<IWebApiHelper> LazyInstance = new Lazy<IWebApiHelper>(() => new WebApiHelper(SimpleLogFactory.Instance));
+        public static Func<IWebApiHelper> Resolve { get; set; } = () => LazyInstance.Value;
 
         #endregion
 
